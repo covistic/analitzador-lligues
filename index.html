@@ -245,12 +245,14 @@ body { background: var(--color-bg); color: var(--color-fg); font-family: var(--f
 .rtg-proper-btn:hover { background: #1e293b; }
 .rtg-proper-btn:focus-visible { outline: 2px solid #1f6fd1; outline-offset: 2px; }
 .rtg-proper-eq { font-weight: inherit; }
+.rtg-nom-curt { display: none; }
+@media (max-width: 600px) { .rtg-nom-full { display: none; } .rtg-nom-curt { display: inline; } }
 #lliga .rtg-player-head.rtg-stack { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 10px; align-items: center; }
 #lliga .rtg-player-head.rtg-stack .rtg-sep-l { margin-left: 0; }
 #lliga .rtg-player-head.rtg-stack select { width: 100%; max-width: none; }
 .rtg-proper-cos.rtg-wrap .rtg-proper-dreta { width: 100%; justify-content: space-between; }
 .rtg-proper-cos.rtg-wrap .rtg-proper-p { text-align: left; }
-@media (max-width: 600px) { .rtg-proper { padding: 14px; } .rtg-proper-cos { flex-direction: column; align-items: stretch; } .rtg-proper-eq, .rtg-proper-vs span { display: block; } .rtg-proper-dreta { width: 100%; flex-direction: column; align-items: stretch; gap: 14px; border-top: 1px solid var(--color-border-line); padding-top: 12px; } .rtg-proper-p { text-align: left; border-bottom: 1px solid var(--color-border-line); padding-bottom: 12px; } .rtg-proper-p strong, .rtg-proper-p b { display: block; } .rtg-proper-btn { width: 100%; padding: 12px 18px; } }
+@media (max-width: 600px) { .rtg-proper { padding: 14px; } .rtg-proper-cos { flex-direction: column; align-items: stretch; } .rtg-proper-eq, .rtg-proper-vs span { display: block; } .rtg-proper-dreta { width: 100%; flex-direction: column; align-items: stretch; gap: 14px; border-top: 1px solid var(--color-border-line); padding-top: 12px; } .rtg-proper-p .rtg-guany-bar { justify-content: flex-start; } .rtg-proper-p { text-align: left; border-bottom: 1px solid var(--color-border-line); padding-bottom: 12px; } .rtg-proper-p strong, .rtg-proper-p b { display: block; } .rtg-proper-btn { width: 100%; padding: 12px 18px; } }
 .rtg-elo-seg { margin: 0 0 var(--cds-gap-sm); }
 .rtg-lliga-sel { margin: 14px 0 0; }
 .rtg-lliga-sel .rtg-seg-btn { font-size: var(--cds-font-size-body); padding: 6px 16px; }
@@ -291,6 +293,12 @@ body { background: var(--color-bg); color: var(--color-fg); font-family: var(--f
 .rtg-guany strong { font-size: 18px; font-weight: 600; color: #0f172a; }
 .rtg-guany b { font-size: 18px; font-weight: 600; color: #0f172a; font-variant-numeric: tabular-nums; }
 .rtg-guany-t { font-size: 12px; }
+.rtg-guany-bar { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.rtg-guany-bar i { display: block; height: 8px; width: 140px; border-radius: 4px; background: #cbd5e1; overflow: hidden; }
+.rtg-guany-bar i em { display: block; height: 100%; }
+.rtg-guany-bar span { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.rtg-proper-p .rtg-guany-bar { justify-content: flex-end; }
+.rtg-proper-cos.rtg-wrap .rtg-proper-p .rtg-guany-bar { justify-content: flex-start; }
 .rtg-prep-probeq { font-weight: 700; color: #0f172a; }
 .rtg-prep-probt { color: var(--color-fg-muted); }
 .rtg-prep-prob { font-size: calc(var(--cds-font-size-heading) * 1.2); font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -304,6 +312,8 @@ body { background: var(--color-bg); color: var(--color-fg); font-family: var(--f
 .rtg-prep-dist { min-width: 0; }
 .rtg-prep-dist svg { display: block; overflow: visible; }
 .rtg-prep-dval text { fill: var(--color-fg); font-size: 11px; font-weight: 600; font-family: var(--font-anthropic-sans); }
+.rtg-pron-g { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); white-space: nowrap; margin-bottom: 3px; }
+.rtg-pron-g b { color: #0f172a; font-weight: 600; }
 .rtg-prep-barra { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
 .rtg-prep-barra i { display: block; height: 6px; width: 70px; border-radius: 3px; background: #cbd5e1; overflow: hidden; }
 .rtg-prep-barra i em { display: block; height: 100%; background: #15803d; }
@@ -368,10 +378,10 @@ body { background: var(--color-bg); color: var(--color-fg); font-family: var(--f
   table[data-sort-table="habituals"] :is(th, td):is(:nth-child(3), :nth-child(8), :nth-child(n+9)) { display: none; }
   table[data-sort-table="habituals"] .rtg-elo-rank { display: none; }
   table[data-sort-table="habituals"] :is(th, td):first-child { position: sticky; left: 0; z-index: 1; background: var(--color-panel); white-space: normal; min-width: 92px; }
-  table[data-sort-table="lliga"] :is(th, td):is(:nth-child(4), :nth-child(6)) { display: none; }
+  table[data-sort-table="lliga"] :is(th, td):nth-child(6) { display: none; }
   table[data-sort-table="lliga"] td { white-space: normal; }
   .rtg-prep-graella td, .rtg-prep-res table td { white-space: normal; }
-  .rtg-prep-barra i { display: none; }
+  .rtg-prep-barra i { width: 48px; }
   .rtg-prep-res td.num, .rtg-prep-res .rtg-prep-barra span { white-space: nowrap; }
   table[data-sort-table="habituals"] th .rtg-info { display: none; }
   .rtg .rtg-prep-graella td.p { width: auto; }
@@ -681,8 +691,10 @@ window.rtgGuanyador = (equip, rival, p) => {
   const w = document.createElement('div'); w.className = 'rtg-guany';
   const l1 = document.createElement('div'); const t1 = document.createElement('span'); t1.className = 'rtg-guany-t'; t1.textContent = 'Guanyador: ';
   const n = document.createElement('strong'); n.textContent = nom; l1.append(t1, n);
-  const l2 = document.createElement('div'); const b = document.createElement('b'); b.textContent = (100 * q).toFixed(1).replace('.', ',') + '%';
-  const t2 = document.createElement('span'); t2.className = 'rtg-guany-t'; t2.textContent = 'Probabilitat: '; l2.append(t2, b);
+  const l2 = document.createElement('div'); l2.className = 'rtg-guany-bar';
+  const i = document.createElement('i'); const em = document.createElement('em'); em.style.width = (100 * q).toFixed(1) + '%'; em.style.background = guanya ? '#15803d' : '#b91c1c'; i.append(em);
+  const b = document.createElement('span'); b.className = guanya ? 'rtg-win' : 'rtg-loss'; b.textContent = '(' + (100 * q).toFixed(1).replace('.', ',') + '% Prob.)';
+  l2.append(i, b);
   w.append(l1, l2); return w;
 };
 window.rtgProperWrap = () => {
@@ -707,6 +719,13 @@ window.rtgPintaRank = () => {
     const c = cols && cols.get(tr.dataset.k);
     tr.querySelectorAll('td').forEach((td, i) => { td.style.background = c ? c + '24' : ''; td.style.boxShadow = c && i === 0 ? 'inset 4px 0 0 ' + c : ''; });
   });
+};
+window.rtgNom = (nom) => {
+  const nf = document.createElement('span'); nf.className = 'rtg-nom-full'; nf.textContent = nom;
+  const [cogs, nomP] = nom.split(', '); const ws = cogs.split(' '); const part = ['DE', 'DEL', 'LA', 'I', 'Y', 'DA', 'DOS']; let k = 0; while (k < ws.length - 1 && part.includes(ws[k])) k++;
+  const nc = document.createElement('span'); nc.className = 'rtg-nom-curt'; nc.append(ws.slice(0, k + 1).join(' ') + (nomP ? ',' : ''));
+  if (nomP) nc.append(document.createElement('br'), nomP);
+  return [nf, nc];
 };
 window.rtgCanviEquip = (v) => {
     window.rtgEquip = window.rtgEquipJug = window.rtgEquipElo = v; window.rtgJugLliga = null; window.rtgEloSel = null; Object.assign(window.rtgPrep, {rival: null, casa: null, nostres: null, seus: null, defecte: true});
@@ -765,7 +784,7 @@ dash.draw('habituals', (tbody) => {
     const c = (t, cls) => { const td = tr.insertCell(); td.textContent = t; if (cls) td.className = cls; return td; };
     const pj = +r.partits, pg = +r.guanyats;
     const jd = +r.jocs_favor - +r.jocs_contra, pd = +r.punts_favor - +r.punts_contra;
-    c(r.jugador);
+    c('').append(...window.rtgNom(r.jugador));
     const el = eloDe.get(r.equip + '|' + r.jugador);
     const tdE = c(el ? window.rtgMil(el.elo_ajustat) : '–', 'num');
     if (el) { const sp = document.createElement('span'); sp.className = 'rtg-elo-rank'; sp.textContent = '#' + el.rank; tdE.append(sp); }
@@ -830,7 +849,7 @@ dash.draw('partits-lliga', (tbody) => {
     const h = deltes.get(m.i + '|' + equip + '|' + nom);
     const dv = h ? Math.round(h.elo_aj) - Math.round(h.aj_ini) : null;
     c(h ? window.rtgMil(Math.round(h.aj_ini)) : '–', 'num rtg-elo-ini');
-    const tdR = c(m.rival, 'rtg-col-rival-td');
+    const tdR = c('', 'rtg-col-rival-td'); tdR.append(...window.rtgNom(m.rival));
     const eq = document.createElement('span'); eq.className = 'lliga'; eq.style.display = 'block'; eq.textContent = m.req; tdR.append(eq);
     const hr = deltes.get(m.i + '|' + m.req + '|' + m.rival);
     c(hr ? window.rtgMil(Math.round(hr.aj_ini)) : '–', 'num');
@@ -999,7 +1018,7 @@ dash.draw('lliga', (tbody) => {
     tr.onpointerleave = () => { if (window.rtgEloHi) window.rtgEloHi(null); };
     const c = (t, cls) => { const td = tr.insertCell(); td.textContent = t; if (cls) td.className = cls; return td; };
     c(String(r.rank), 'num pos');
-    c(r.jugador);
+    c('').append(...window.rtgNom(r.jugador));
     c(r.equip, 'lliga');
     c(String(r.partits), 'num');
     c(window.rtgMil(r.elo_ajustat), 'num pts');
@@ -1466,18 +1485,21 @@ dash.draw('preparar', (el) => {
   res.append(sub);
   const wrap = document.createElement('div'); wrap.className = 'rtg-scroll'; res.append(wrap);
   const t = document.createElement('table'); t.className = 'rtg-prep-graella'; wrap.append(t);
+  const th = t.createTHead().insertRow(); const thb = document.createElement('th'); thb.colSpan = 4; const thp = document.createElement('th'); thp.className = 'num'; thp.textContent = 'Pronòstic'; th.append(thb, thp);
   const tb = t.createTBody();
   const {ps} = prob(best.o, rv);
   ordre.forEach(([a, x], k) => {
     const oi = st.costat === 'ABC' ? a : x, ri = st.costat === 'ABC' ? x : a;
     const tr = tb.insertRow();
     const c = (txt, cls) => { const td = tr.insertCell(); td.textContent = txt; if (cls) td.className = cls; return td; };
-    c(L[oi], 'lletra'); c(best.o[oi].nom); c(R[ri], 'lletra-r'); c(rv[ri].nom);
+    c(L[oi], 'lletra'); c('').append(...window.rtgNom(best.o[oi].nom)); c(R[ri], 'lletra-r'); c('').append(...window.rtgNom(rv[ri].nom));
     const tdp = c('', 'num p');
+    const nostre = ps[k] >= 0.5, q = nostre ? ps[k] : 1 - ps[k], gn = nostre ? best.o[oi].nom : rv[ri].nom;
+    const gl = document.createElement('div'); gl.className = 'rtg-pron-g'; const gb = document.createElement('b'); gb.textContent = curt(gn); gl.append('Guanya: ', gb);
     const bar = document.createElement('div'); bar.className = 'rtg-prep-barra';
-    const i = document.createElement('i'); const em = document.createElement('em'); em.style.width = Math.round(100 * ps[k]) + '%'; i.append(em);
-    const s = document.createElement('span'); s.className = ps[k] >= 0.5 ? 'rtg-win' : 'rtg-loss'; s.textContent = pct(ps[k]);
-    bar.append(i, s); tdp.append(bar);
+    const i = document.createElement('i'); const em = document.createElement('em'); em.style.width = Math.round(100 * q) + '%'; em.style.background = nostre ? '#15803d' : '#b91c1c'; i.append(em);
+    const s = document.createElement('span'); s.className = nostre ? 'rtg-win' : 'rtg-loss'; s.textContent = '(' + Math.round(100 * q) + '% Prob.)';
+    bar.append(i, s); tdp.append(gl, bar);
   });
   if (manual) { res.querySelectorAll('td.lletra, td.lletra-r').forEach((td) => { const b = document.createElement('span'); b.className = 'rtg-badge'; b.textContent = td.textContent; b.dataset.l = td.textContent; td.replaceChildren(b); }); const nm = document.createElement('p'); nm.className = 'rtg-note'; nm.textContent = 'Mode manual: la probabilitat es calcula només per a aquest enfrontament concret. Cada partit es calcula amb l\'ELO; amb 3-3 decideix el doble.'; res.append(nm); return; }
   const sub2 = document.createElement('h4'); sub2.className = 'rtg-prep-sub'; sub2.textContent = 'Altres trios (amb el seu millor ordre)'; res.append(sub2);
