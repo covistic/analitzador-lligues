@@ -261,6 +261,11 @@ body { background: var(--color-bg); color: var(--color-fg); font-family: var(--f
 .rtg-prep-ctrl { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cds-gap-sm) var(--cds-gap-md); }
 .rtg-prep-ctrl label { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); min-width: 3.2em; }
 .rtg-prep-brk { flex-basis: 100%; height: 0; }
+.rtg-prep-labm { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+.rtg-prep-ajuda { flex-basis: 100%; margin: -4px 0 0; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.rtg-prep-manf { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.rtg-prep-manf .dash-select { flex: 1 1 auto; min-width: 0; }
+.rtg-prep-man { margin-bottom: var(--cds-gap-md); }
 .rtg-prep-segs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-md); }
 .rtg-prep-ctrl.rtg-stack { row-gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--color-border-line); }
 .rtg-prep-ctrl.rtg-stack #prep-equip, .rtg-prep-ctrl.rtg-stack #prep-rival { flex: 1 1 0; min-width: 0; }
@@ -1317,8 +1322,16 @@ dash.draw('preparar', (el) => {
   selE.append(...totsEq.map((n) => new Option(n, n))); selE.value = equip;
   selE.onchange = () => window.rtgCanviEquip(selE.value);
   const brk = document.createElement('div'); brk.className = 'rtg-prep-brk';
+  const seg3 = document.createElement('div'); seg3.className = 'rtg-seg'; seg3.setAttribute('role', 'group'); seg3.setAttribute('aria-label', 'Mode d\'alineació');
+  for (const [v, t] of [['auto', 'Auto'], ['manual', 'Manual']]) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'rtg-seg-btn'; b.textContent = t; b.setAttribute('aria-pressed', String((st.mode || 'auto') === v));
+    b.onclick = () => { st.defecte = false; st.mode = v; redraw(); }; seg3.append(b);
+  }
   const segs = document.createElement('div'); segs.className = 'rtg-prep-segs'; segs.append(seg2, seg);
-  ctrl.append(labE, selE, segs, brk, lab, sel); el.append(ctrl);
+  const brk2 = document.createElement('div'); brk2.className = 'rtg-prep-brk';
+  const labM = document.createElement('span'); labM.className = 'rtg-prep-labm'; labM.textContent = 'Alineació auto o manual';
+  const ajuda = document.createElement('p'); ajuda.className = 'rtg-prep-ajuda'; ajuda.textContent = 'Auto: el simulador busca la millor alineació. Manual: tries tu qui juga a cada posició.';
+  ctrl.append(labE, selE, segs, brk, lab, sel, brk2, labM, seg3, ajuda); el.append(ctrl);
   requestAnimationFrame(window.rtgCapWrap);
 
   const cols = document.createElement('div'); cols.className = 'rtg-prep-cols'; el.append(cols);
@@ -1343,11 +1356,15 @@ dash.draw('preparar', (el) => {
   cols.append(llista(equip, nostres, st.nostres, true), llista(st.rival, seus, st.seus, true));
 
   const res = document.createElement('div'); res.className = 'rtg-prep-res'; el.append(res);
+  const manual = st.mode === 'manual';
+  if (manual) cols.style.display = 'none';
   const A = nostres.filter((r) => st.nostres.has(r.nom)), B = seus.filter((r) => st.seus.has(r.nom));
-  if (A.length < 3 || B.length < 3) { const p = document.createElement('p'); p.className = 'rtg-note'; p.textContent = 'Marca almenys 3 jugadors de cada equip.'; res.append(p); return; }
+  const autoOk = A.length >= 3 && B.length >= 3;
+  if (!autoOk && !manual) { const p = document.createElement('p'); p.className = 'rtg-note'; p.textContent = 'Marca almenys 3 jugadors de cada equip.'; res.append(p); return; }
+  if (manual && (nostres.length < 3 || seus.length < 3)) { const p = document.createElement('p'); p.className = 'rtg-note'; p.textContent = 'Cal que cada equip tingui almenys 3 jugadors.'; res.append(p); return; }
   const trios = (q) => { const o = []; for (let a = 0; a < q.length; a++) for (let b = a + 1; b < q.length; b++) for (let c = b + 1; c < q.length; c++) o.push([q[a], q[b], q[c]]); return o; };
   const perms = (t) => [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]].map((p) => p.map((i) => t[i]));
-  const rivals = trios(B).map((t) => t.slice().sort((x, y) => x.pos - y.pos || y.aj - x.aj));
+  let rivals = autoOk ? trios(B).map((t) => t.slice().sort((x, y) => x.pos - y.pos || y.aj - x.aj)) : [];
   const ordre = [[0, 1], [1, 0], [2, 2], [0, 0], [2, 1], [1, 2]];
   const pw = (x, y) => 1 / (1 + Math.pow(10, (y.aj - x.aj) / 400));
   const prob = (o, r) => {
@@ -1357,17 +1374,42 @@ dash.draw('preparar', (el) => {
     const dob = ps.reduce((t, q) => t + q, 0) / 6;
     return {p: d[4] + d[5] + d[6] + d[3] * dob, ps, d, dob};
   };
-  const pesos = rivals.map((r) => Math.max(1e-6, r.reduce((t, x) => t * x.pjuga, 1)));
-  const iMax = pesos.indexOf(Math.max(...pesos));
-  const opcions = [];
-  for (const t of trios(A)) for (const o of perms(t)) {
+  let pesos = rivals.map((r) => Math.max(1e-6, r.reduce((t, x) => t * x.pjuga, 1)));
+  let iMax = pesos.indexOf(Math.max(...pesos));
+  let opcions = [];
+  if (autoOk) for (const t of trios(A)) for (const o of perms(t)) {
     let sp = 0, sw = 0;
     rivals.forEach((r, k) => { sp += pesos[k] * prob(o, r).p; sw += pesos[k]; });
     opcions.push({o, p: sp / sw});
   }
   opcions.sort((a, b) => b.p - a.p);
-  const best = opcions[0];
-  if (st.defecte !== false) {
+  let best = opcions[0];
+  const Lm = st.costat === 'ABC' ? ['A', 'B', 'C'] : ['X', 'Y', 'Z'], Rm = st.costat === 'ABC' ? ['X', 'Y', 'Z'] : ['A', 'B', 'C'];
+  if (manual) {
+    const key = equip + '|' + st.rival;
+    if (!st.man || st.man.key !== key) st.man = {key, o: (autoOk ? best.o : nostres.slice(0, 3)).map((r) => r.nom), r: (autoOk ? rivals[iMax] : seus.slice(0, 3)).map((r) => r.nom)};
+    const panel = document.createElement('div'); panel.className = 'rtg-prep-cols rtg-prep-man'; el.insertBefore(panel, res);
+    const caixa = (titol, rows, noms, lletres) => {
+      const box = document.createElement('div');
+      const h = document.createElement('h4'); h.textContent = titol; box.append(h);
+      const hs = document.createElement('p'); hs.className = 'rtg-prep-llsub'; hs.textContent = 'Tria qui juga a cada posició'; box.append(hs);
+      lletres.forEach((lt, i) => {
+        const fila = document.createElement('div'); fila.className = 'rtg-prep-manf';
+        const b = document.createElement('span'); b.className = 'rtg-badge'; b.textContent = lt; b.dataset.l = lt;
+        const se = document.createElement('select'); se.className = 'dash-select'; se.setAttribute('aria-label', 'Jugador ' + lt);
+        se.append(...rows.map((r) => new Option(r.nom + ' · ' + window.rtgMil(r.aj), r.nom))); se.value = noms[i];
+        se.onchange = () => { noms[i] = se.value; redraw(); };
+        fila.append(b, se); box.append(fila);
+      });
+      return box;
+    };
+    panel.append(caixa(equip, nostres, st.man.o, Lm), caixa(st.rival, seus, st.man.r, Rm));
+    const dup = (a) => new Set(a).size < a.length;
+    if (dup(st.man.o) || dup(st.man.r)) { const p = document.createElement('p'); p.className = 'rtg-note'; p.textContent = 'Un mateix jugador no pot jugar en dues posicions.'; res.append(p); return; }
+    const oM = st.man.o.map((n) => nostres.find((r) => r.nom === n)), rM = st.man.r.map((n) => seus.find((r) => r.nom === n));
+    best = {o: oM, p: prob(oM, rM).p}; rivals = [rM]; pesos = [1]; iMax = 0; opcions = [best];
+  }
+  if (st.defecte !== false && !manual) {
     const prev = window.rtgProper;
     const nou = {lliga: window.rtgLliga, equip, rival: st.rival, p: best.p};
     if (!prev || prev.lliga !== nou.lliga || prev.equip !== nou.equip || prev.rival !== nou.rival || Math.abs(prev.p - nou.p) > 1e-9) { window.rtgProper = nou; setTimeout(() => dash.draw('proper'), 0); }
@@ -1420,7 +1462,7 @@ dash.draw('preparar', (el) => {
     .text((v) => v < 0.001 ? '<0,1%' : (100 * v).toFixed(1).replace('.', ',') + '%');
   const rv = rivals[iMax];
   const sub = document.createElement('h4'); sub.className = 'rtg-prep-sub';
-  sub.textContent = 'Alineació suggerida';
+  sub.textContent = manual ? 'Alineació triada' : 'Alineació suggerida';
   res.append(sub);
   const wrap = document.createElement('div'); wrap.className = 'rtg-scroll'; res.append(wrap);
   const t = document.createElement('table'); t.className = 'rtg-prep-graella'; wrap.append(t);
@@ -1437,6 +1479,7 @@ dash.draw('preparar', (el) => {
     const s = document.createElement('span'); s.className = ps[k] >= 0.5 ? 'rtg-win' : 'rtg-loss'; s.textContent = pct(ps[k]);
     bar.append(i, s); tdp.append(bar);
   });
+  if (manual) { res.querySelectorAll('td.lletra, td.lletra-r').forEach((td) => { const b = document.createElement('span'); b.className = 'rtg-badge'; b.textContent = td.textContent; b.dataset.l = td.textContent; td.replaceChildren(b); }); const nm = document.createElement('p'); nm.className = 'rtg-note'; nm.textContent = 'Mode manual: la probabilitat es calcula només per a aquest enfrontament concret. Cada partit es calcula amb l\'ELO; amb 3-3 decideix el doble.'; res.append(nm); return; }
   const sub2 = document.createElement('h4'); sub2.className = 'rtg-prep-sub'; sub2.textContent = 'Altres trios (amb el seu millor ordre)'; res.append(sub2);
   const t2 = document.createElement('table'); const tb2 = t2.createTBody();
   for (const op of alts.slice(0, 3)) {
